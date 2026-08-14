@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Nexora — Bài viết</title>
+
+    <link rel="stylesheet" href="../style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <header class="navbar">
+
+        <div class="logo">
+
+            <img
+                src="../assets/nexora-logo.png"
+                alt="Nexora"
+            >
+
+        </div>
+
+        <nav>
+
+            <a href="../index.html">
+                Trang chủ
+            </a>
+
+            <a href="../index.html#about">
+                Về Nexora
+            </a>
+
+            <a href="../index.html#projects">
+                Dự án
+            </a>
+
+            <a href="index.html">
+                Tin tức
+            </a>
+
+            <a href="../index.html#contact">
+                Liên hệ
+            </a>
+
+        </nav>
+
+        <button class="nav-button">
+            Khám phá
+        </button>
+
+    </header>
+
+
+    <!-- ARTICLE -->
+
+    <main class="article-page">
+
+        <article>
+
+            <div class="article-header">
+
+                <span
+                    class="category"
+                    id="article-category"
+                >
+                    ĐANG TẢI...
+                </span>
+
+
+                <h1 id="article-title">
+                    Đang tải bài viết...
+                </h1>
+
+
+                <p
+                    class="article-intro"
+                    id="article-excerpt"
+                >
+                </p>
+
+
+                <div
+                    class="article-info"
+                    id="article-info"
+                >
+                </div>
+
+            </div>
+
+
+            <!-- COVER -->
+
+            <div class="article-cover">
+
+                <img
+                    id="article-image"
+                    src="../assets/nexora-bg.png"
+                    alt="Nexora"
+                >
+
+            </div>
+
+
+            <!-- CONTENT -->
+
+            <div
+                class="article-body"
+                id="article-content"
+            >
+
+                <p>
+                    Đang tải nội dung...
+                </p>
+
+            </div>
+
+        </article>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <div class="logo">
+
+            <img
+                src="../assets/nexora-logo.png"
+                alt="Nexora"
+            >
+
+        </div>
+
+        <p>
+            © 2026 Nexora. Bảo lưu mọi quyền.
+        </p>
+
+    </footer>
+
+
+    <!-- SUPABASE -->
+
+    <script src="../supabase.js"></script>
+
+
+    <script>
+
+    async function loadArticle() {
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const slug =
+            params.get("slug");
+
+
+        /* Không có slug */
+
+        if (!slug) {
+
+            document.querySelector(
+                "#article-title"
+            ).textContent =
+                "Không tìm thấy bài viết.";
+
+            return;
+        }
+
+
+        /* Lấy bài viết */
+
+        const { data: post, error } =
+            await supabaseClient
+                .from("posts")
+                .select("*")
+                .eq("slug", slug)
+                .eq("status", "published")
+                .single();
+
+
+        /* Lỗi hoặc không tìm thấy */
+
+        if (error || !post) {
+
+            console.error(error);
+
+            document.querySelector(
+                "#article-title"
+            ).textContent =
+                "Không tìm thấy bài viết.";
+
+            document.querySelector(
+                "#article-content"
+            ).innerHTML = `
+                <p>
+                    Bài viết không tồn tại
+                    hoặc đã được gỡ xuống.
+                </p>
+            `;
+
+            return;
+        }
+
+
+        /* TITLE */
+
+        document.title =
+            post.title + " — Nexora";
+
+
+        /* CATEGORY */
+
+        document.querySelector(
+            "#article-category"
+        ).textContent =
+            post.category;
+
+
+        /* TITLE */
+
+        document.querySelector(
+            "#article-title"
+        ).textContent =
+            post.title;
+
+
+        /* EXCERPT */
+
+        document.querySelector(
+            "#article-excerpt"
+        ).textContent =
+            post.excerpt || "";
+
+
+        /* DATE + AUTHOR */
+
+        document.querySelector(
+            "#article-info"
+        ).textContent =
+
+            new Date(
+                post.created_at
+            ).toLocaleDateString("vi-VN")
+
+            + " · " +
+
+            (post.author || "Nexora");
+
+
+        /* IMAGE */
+
+        document.querySelector(
+            "#article-image"
+        ).src =
+
+            post.image_url ||
+            "../assets/nexora-bg.png";
+
+
+        document.querySelector(
+            "#article-image"
+        ).alt =
+            post.title;
+
+
+        /* CONTENT */
+
+        const articleContent =
+            document.querySelector(
+                "#article-content"
+            );
+
+
+        articleContent.innerHTML =
+    post.content;
+    }
+
+
+    loadArticle();
+
+    </script>
+
+
+</body>
+
+</html>
